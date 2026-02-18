@@ -1,0 +1,9 @@
+**/.vs
+**/.vscode
+**/bin
+**/obj
+**/gateway.db
+**/data
+.git
+.github
+*.user

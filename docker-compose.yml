@@ -1,0 +1,15 @@
+version: '3.4'
+
+services:
+  gateway-api:
+    image: bhd-document-gateway
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "5000:8080"
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ConnectionStrings__DefaultConnection=Data Source=gateway.db
+    volumes:
+      - ./data:/app/data
