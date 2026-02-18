@@ -35,6 +35,7 @@ Ensure you have the .NET 8 SDK installed.
    ```bash
    dotnet run --project src/Gateway.Api/Gateway.Api.csproj
    ```
+3. Launch Swagger UI at: http://localhost:5000/swagger
 
 ## Testing
 To run all unit and integration tests:

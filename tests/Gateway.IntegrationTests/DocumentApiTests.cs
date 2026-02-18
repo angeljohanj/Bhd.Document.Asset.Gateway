@@ -1,4 +1,5 @@
 using FluentAssertions;
+using Gateway.Api;
 using Gateway.Application.DTOs;
 using Gateway.Domain.Entities;
 using Gateway.Domain.Enums;
@@ -6,15 +7,17 @@ using Gateway.Infrastructure.Persistence;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.VisualStudio.TestPlatform.TestHost;
 using System.Net;
 using System.Net.Http.Json;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 
 namespace Gateway.IntegrationTests;
 
 public class DocumentApiTests : IClassFixture<WebApplicationFactory<Program>>
 {
     private readonly WebApplicationFactory<Program> _factory;
+    private readonly JsonSerializerOptions _jsonOptions;
 
     public DocumentApiTests(WebApplicationFactory<Program> factory)
     {
@@ -31,6 +34,12 @@ public class DocumentApiTests : IClassFixture<WebApplicationFactory<Program>>
                 });
             });
         });
+
+        _jsonOptions = new JsonSerializerOptions
+        {
+            PropertyNameCaseInsensitive = true
+        };
+        _jsonOptions.Converters.Add(new JsonStringEnumConverter());
     }
 
     [Fact]
@@ -49,7 +58,7 @@ public class DocumentApiTests : IClassFixture<WebApplicationFactory<Program>>
         var response = await client.PostAsJsonAsync("/api/bhd/mgmt/1/documents/actions/upload", request);
 
         response.StatusCode.Should().Be(HttpStatusCode.Accepted);
-        var result = await response.Content.ReadFromJsonAsync<DocumentUploadResponseDto>();
+        var result = await response.Content.ReadFromJsonAsync<DocumentUploadResponseDto>(_jsonOptions);
         result.Id.Should().NotBeNullOrEmpty();
     }
 
@@ -75,7 +84,7 @@ public class DocumentApiTests : IClassFixture<WebApplicationFactory<Program>>
         var response = await client.GetAsync("/api/bhd/mgmt/1/documents?filename=search_me");
 
         response.StatusCode.Should().Be(HttpStatusCode.OK);
-        var documents = await response.Content.ReadFromJsonAsync<List<DocumentAsset>>();
+        var documents = await response.Content.ReadFromJsonAsync<List<DocumentAsset>>(_jsonOptions);
         documents.Should().NotBeNull();
         documents.Should().Contain(d => d.Filename == "search_me.txt");
     }

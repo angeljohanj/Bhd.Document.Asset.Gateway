@@ -3,45 +3,58 @@ using Gateway.Infrastructure.DependencyInjection;
 using Gateway.Infrastructure.Persistence;
 using System.Text.Json.Serialization;
 
-var builder = WebApplication.CreateBuilder(args);
+namespace Gateway.Api;
 
-// Add services to the container.
-builder.Services.AddControllers()
-    .AddJsonOptions(options =>
+public partial class Program { 
+
+
+    public static void Main(string[] args)
     {
-        options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
-    });
+        var builder = WebApplication.CreateBuilder(args);
 
-builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen(c =>
-{
-    c.SwaggerDoc("v1", new Microsoft.OpenApi.Models.OpenApiInfo
-    {
-        Title = "BHD Document Asset Gateway",
-        Version = "1.0.0",
-        Description = "API for managing document uploads and searching metadata."
-    });
-});
+        // Add services to the container.
+        builder.Services.AddControllers()
+            .AddJsonOptions(options =>
+            {
+                options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
+            });
 
-builder.Services.AddApplication();
-builder.Services.AddInfrastructure(builder.Configuration);
+        builder.Services.AddEndpointsApiExplorer();
+        builder.Services.AddSwaggerGen(c =>
+        {
+            c.SwaggerDoc("v1", new Microsoft.OpenApi.Models.OpenApiInfo
+            {
+                Title = "BHD Document Asset Gateway",
+                Version = "1.0.0",
+                Description = "API for managing document uploads and searching metadata."
+            });
+        });
 
-var app = builder.Build();
+        builder.Services.AddApplication();
+        builder.Services.AddInfrastructure(builder.Configuration);
 
-using (var scope = app.Services.CreateScope())
-{
-    var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
-    db.Database.EnsureCreated();
+        var app = builder.Build();
+
+        using (var scope = app.Services.CreateScope())
+        {
+            var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+            db.Database.EnsureCreated();
+        }
+
+        // Configure the HTTP request pipeline.
+        if (app.Environment.IsDevelopment())
+        {
+            app.UseSwagger();
+            app.UseSwaggerUI();
+        }
+
+        app.UseHttpsRedirection();
+        app.MapControllers();
+
+        app.Run();
+    }
 }
 
-// Configure the HTTP request pipeline.
-if (app.Environment.IsDevelopment())
-{
-    app.UseSwagger();
-    app.UseSwaggerUI();
-}
 
-app.UseHttpsRedirection();
-app.MapControllers();
 
-app.Run();
+
