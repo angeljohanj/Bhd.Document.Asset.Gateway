@@ -37,6 +37,20 @@ Ensure you have the .NET 8 SDK installed.
    ```
 3. Launch Swagger UI at: http://localhost:5000/swagger
 
+## Security & Swagger Authorization
+To access the API endpoints, you must provide a valid API Key.
+
+**API Key Details:**
+- **Header Name**: `X-Api-Key`
+- **Header Value**: `BHD_Secret_Key_2026`
+
+### **How to authorize in Swagger UI:**
+1. Open http://localhost:5000/swagger
+2. Click the **"Authorize"** button (top right padlock icon).
+3. Enter `BHD_Secret_Key_2026` in the value field.
+4. Click **Authorize** and then **Close**.
+5. You can now execute the endpoints from the UI.
+
 ## Testing
 To run all unit and integration tests:
 ```bash

@@ -19,7 +19,7 @@ public class DocumentRepository : IDocumentRepository
         return await _context.Documents.FindAsync(id) ?? throw new KeyNotFoundException($"Document {id} not found");
     }
 
-    public async Task<IEnumerable<DocumentAsset>> SearchAsync(DocumentSearchFiltersDto filters)
+    public async Task<PagedResponseDto<DocumentAsset>> SearchAsync(DocumentSearchFiltersDto filters)
     {
         var query = _context.Documents.AsQueryable();
 
@@ -55,7 +55,13 @@ public class DocumentRepository : IDocumentRepository
             _ => filters.SortDirection == "DESC" ? query.OrderByDescending(d => d.UploadDate) : query.OrderBy(d => d.UploadDate),
         };
 
-        return await query.ToListAsync();
+        var totalCount = await query.CountAsync();
+        var items = await query
+            .Skip((filters.PageNumber - 1) * filters.PageSize)
+            .Take(filters.PageSize)
+            .ToListAsync();
+
+        return new PagedResponseDto<DocumentAsset>(items, totalCount, filters.PageNumber, filters.PageSize);
     }
 
     public async Task AddAsync(DocumentAsset document)

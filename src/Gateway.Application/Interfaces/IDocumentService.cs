@@ -6,5 +6,5 @@ namespace Gateway.Application.Interfaces;
 public interface IDocumentService
 {
     Task<DocumentUploadResponseDto> UploadDocumentAsync(DocumentUploadRequestDto request);
-    Task<IEnumerable<DocumentAsset>> SearchDocumentsAsync(DocumentSearchFiltersDto filters);
+    Task<PagedResponseDto<DocumentAsset>> SearchDocumentsAsync(DocumentSearchFiltersDto filters);
 }

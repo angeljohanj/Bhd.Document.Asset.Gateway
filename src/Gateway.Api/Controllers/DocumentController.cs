@@ -49,7 +49,7 @@ public class DocumentController : ControllerBase
     /// <param name="sortDirection"></param>
     /// <returns></returns>
     [HttpGet]
-    [ProducesResponseType(typeof(IEnumerable<DocumentAsset>), 200)]
+    [ProducesResponseType(typeof(PagedResponseDto<DocumentAsset>), 200)]
     [ProducesResponseType(400)]
     public async Task<IActionResult> SearchDocuments(
         [FromQuery] DateTime? uploadDateStart,
@@ -61,7 +61,9 @@ public class DocumentController : ControllerBase
         [FromQuery] string? customerId,
         [FromQuery] Channel? channel,
         [FromQuery] string sortBy = "uploadDate",
-        [FromQuery] string sortDirection = "ASC")
+        [FromQuery] string sortDirection = "ASC",
+        [FromQuery] int pageNumber = 1,
+        [FromQuery] int pageSize = 10)
     {
         var filters = new DocumentSearchFiltersDto
         {
@@ -74,7 +76,9 @@ public class DocumentController : ControllerBase
             CustomerId = customerId,
             Channel = channel,
             SortBy = sortBy,
-            SortDirection = sortDirection
+            SortDirection = sortDirection,
+            PageNumber = pageNumber,
+            PageSize = pageSize
         };
 
         var results = await _documentService.SearchDocumentsAsync(filters);

@@ -14,4 +14,6 @@ public class DocumentSearchFiltersDto
     public Channel? Channel { get; set; }
     public string SortBy { get; set; } = "uploadDate";
     public string SortDirection { get; set; } = "ASC";
+    public int PageNumber { get; set; } = 1;
+    public int PageSize { get; set; } = 10;
 }

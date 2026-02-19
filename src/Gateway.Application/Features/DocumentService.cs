@@ -41,7 +41,7 @@ public class DocumentService : IDocumentService
         return new DocumentUploadResponseDto { Id = documentAsset.Id };
     }
 
-    public async Task<IEnumerable<DocumentAsset>> SearchDocumentsAsync(DocumentSearchFiltersDto filters)
+    public async Task<PagedResponseDto<DocumentAsset>> SearchDocumentsAsync(DocumentSearchFiltersDto filters)
     {
         return await _repository.SearchAsync(filters);
     }

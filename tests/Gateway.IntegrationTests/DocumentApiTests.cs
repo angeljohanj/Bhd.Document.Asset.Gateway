@@ -42,14 +42,21 @@ public class DocumentApiTests : IClassFixture<WebApplicationFactory<Program>>
         _jsonOptions.Converters.Add(new JsonStringEnumConverter());
     }
 
+    private HttpClient CreateClientWithAuth()
+    {
+        var client = _factory.CreateClient();
+        client.DefaultRequestHeaders.Add("X-Api-Key", "BHD_Secret_Key_2026");
+        return client;
+    }
+
     [Fact]
     public async Task UploadDocument_ReturnsAccepted()
     {
-        var client = _factory.CreateClient();
+        var client = CreateClientWithAuth();
         var request = new DocumentUploadRequestDto
         {
             Filename = "integration.pdf",
-            EncodedFile = "JVBERi0xLjQKJ corpse==",
+            EncodedFile = "JVBERi0xLjQKJWRmY3QK", 
             ContentType = "application/pdf",
             DocumentType = DocumentType.CONTRACT,
             Channel = Channel.BRANCH
@@ -65,7 +72,7 @@ public class DocumentApiTests : IClassFixture<WebApplicationFactory<Program>>
     [Fact]
     public async Task SearchDocuments_ReturnsStoredDocuments()
     {
-        var client = _factory.CreateClient();
+        var client = CreateClientWithAuth();
 
         using (var scope = _factory.Services.CreateScope())
         {
@@ -84,8 +91,19 @@ public class DocumentApiTests : IClassFixture<WebApplicationFactory<Program>>
         var response = await client.GetAsync("/api/bhd/mgmt/1/documents?filename=search_me");
 
         response.StatusCode.Should().Be(HttpStatusCode.OK);
-        var documents = await response.Content.ReadFromJsonAsync<List<DocumentAsset>>(_jsonOptions);
-        documents.Should().NotBeNull();
-        documents.Should().Contain(d => d.Filename == "search_me.txt");
+        var responseData = await response.Content.ReadFromJsonAsync<PagedResponseDto<DocumentAsset>>(_jsonOptions);
+        responseData.Should().NotBeNull();
+        responseData!.Items.Should().Contain(d => d.Filename == "search_me.txt");
+        responseData.TotalCount.Should().BeGreaterThanOrEqualTo(1);
+    }
+
+    [Fact]
+    public async Task RequestWithoutKey_ReturnsUnauthorized()
+    {
+        var client = _factory.CreateClient();
+        
+        var response = await client.GetAsync("/api/bhd/mgmt/1/documents");
+
+        response.StatusCode.Should().Be(HttpStatusCode.Unauthorized);
     }
 }

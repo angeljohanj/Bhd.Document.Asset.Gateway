@@ -55,12 +55,15 @@ public class DocumentServiceTests
             new DocumentAsset { Filename = "test2.txt" }
         };
 
+        var expectedPagedResponse = new PagedResponseDto<DocumentAsset>(expectedDocuments, 2, 1, 10);
+
         _repositoryMock.Setup(r => r.SearchAsync(filters))
-            .ReturnsAsync(expectedDocuments);
+            .ReturnsAsync(expectedPagedResponse);
 
         var result = await _service.SearchDocumentsAsync(filters);
 
-        result.Should().HaveCount(2);
-        result.Should().BeEquivalentTo(expectedDocuments);
+        result.Items.Should().HaveCount(2);
+        result.TotalCount.Should().Be(2);
+        result.Items.Should().BeEquivalentTo(expectedDocuments);
     }
 }
